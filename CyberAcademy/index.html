@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CyberAcademy</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preload" as="image" href="imgs/logo.png" />
+  <link rel="preload" as="image" href="imgs/text2.png" />
+  <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function(){
+      try { emailjs.init('PUBLIC_KEY_PLACEHOLDER'); } catch(e) { /* ignored until configured */ }
+      
+      const header = document.querySelector('.topbar');
+      const menuIcon = document.querySelector('.menu-icon');
+      const nav = document.querySelector('.nav');
+      const navLinks = document.querySelectorAll('.nav a');
+      let menuOpen = false;
+      let ticking = false;
+      let lastScroll = 0;
+      
+      // Handle scroll effect with requestAnimationFrame for better performance
+      function updateHeader() {
+        const currentScroll = window.pageYOffset;
+        const isDesktop = window.innerWidth > 860;
+        
+        if (isDesktop) {
+          // On desktop, make the header compact when scrolling down
+          if (currentScroll > 100) {
+            header.classList.add('compact');
+          } else {
+            header.classList.remove('compact');
+          }
+        } else {
+          // On mobile, use the original show/hide behavior
+          if (currentScroll > lastScroll && currentScroll > 50) {
+            // Scrolling down
+            header.classList.add('scroll-down');
+            header.classList.remove('scroll-up');
+          } else if (currentScroll < lastScroll) {
+            // Scrolling up
+            header.classList.remove('scroll-down');
+            header.classList.add('scroll-up');
+          }
+        }
+        
+        // Add scrolled class for transparency effect
+        if (currentScroll > 10) {
+          header.classList.add('scrolled');
+        } else {
+          header.classList.remove('scrolled');
+        }
+        
+        lastScroll = currentScroll;
+        ticking = false;
+      }
+      
+      window.addEventListener('scroll', () => {
+        if (!ticking) {
+          window.requestAnimationFrame(updateHeader);
+          ticking = true;
+        }
+      }, { passive: true });
+      
+      // Smooth scroll for anchor links
+      function smoothScroll(e) {
+        e.preventDefault();
+        const targetId = this.getAttribute('href');
+        if (targetId === '#') return;
+        
+        const targetElement = document.querySelector(targetId);
+        if (targetElement) {
+          window.scrollTo({
+            top: targetElement.offsetTop - 70,
+            behavior: 'smooth'
+          });
+          
+          // Close mobile menu after clicking a link
+          if (window.innerWidth <= 860) {
+            toggleMenu(false);
+          }
+        }
+      }
+      
+      // Mobile menu toggle function
+      function toggleMenu(shouldOpen) {
+        if (shouldOpen) {
+          nav.classList.add('active');
+          menuIcon.textContent = 'close';
+          document.body.style.overflow = 'hidden'; // Prevent scrolling when menu is open
+        } else {
+          nav.classList.remove('active');
+          menuIcon.textContent = 'menu';
+          document.body.style.overflow = ''; // Re-enable scrolling
+        }
+      }
+      
+      // Toggle menu on menu icon click
+      menuIcon.addEventListener('click', (e) => {
+        e.stopPropagation();
+        menuOpen = !menuOpen;
+        toggleMenu(menuOpen);
+      });
+      
+      // Close menu when clicking outside
+      document.addEventListener('click', (e) => {
+        if (menuOpen && !nav.contains(e.target) && e.target !== menuIcon) {
+          menuOpen = false;
+          toggleMenu(false);
+        }
+      });
+      
+      // Close menu when pressing Escape key
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && menuOpen) {
+          menuOpen = false;
+          toggleMenu(false);
+        }
+      });
+      
+      // Handle window resize for responsive behavior
+      function handleResize() {
+        if (window.innerWidth > 860) {
+          // Reset for desktop
+          menuOpen = false;
+          toggleMenu(false);
+          document.body.style.overflow = '';
+          // Ensure header is in the correct state after resize
+          updateHeader();
+        }
+      }
+      
+      // Add click event to all nav links for smooth scrolling
+      navLinks.forEach(link => {
+        link.addEventListener('click', smoothScroll);
+      });
+      
+      // Initialize
+      window.addEventListener('resize', handleResize, { passive: true });
+      
+      // Add loaded class for initial animation
+      setTimeout(() => {
+        document.body.classList.add('loaded');
+      }, 100);
+    });
+  </script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="container">
+      <a class="brand" href="#home" aria-label="CyberAcademy domů">
+        <img class="brand-logo" src="imgs/logo.png" alt="Logo CyberAcademy" />
+        <img class="brand-text" src="imgs/text2.png" alt="Textové logo CyberAcademy" />
+      </a>
+      
+      <span class="menu-icon material-symbols-outlined">menu</span>
+
+      <nav class="nav" id="nav-menu">
+        <div class="nav-content">
+          <a href="#home"><i class="fas fa-home"></i><span>Domů</span></a>
+          <a href="#features"><i class="fas fa-info-circle"></i><span>O kroužku</span></a>
+          <a href="#signup"><i class="fas fa-pen-to-square"></i><span>Přihláška</span></a>
+          <a href="#about"><i class="fas fa-user-friends"></i><span>O nás</span></a>
+          <a href="#contact"><i class="fas fa-envelope"></i><span>Kontakt</span></a>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section id="home" class="section hero">
+      <div class="container">
+        <div class="hero-logo">
+          <img src="imgs/logo.png" alt="CyberAcademy logo" width="120" height="120">
+        </div>
+        <h1>IT kroužek CyberAcademy</h1>
+        <p>Baví tě IT? Chceš se dozvědět jak to vše funguje v online světě a na co si dát pozor? <br>Nebo v IT teprve začínáš a hledáš někoho, kdo ti vše od začátku a jednoduše vysvětlí? Pak jsi tu správně! <br>Přihlášku nalezneš <a href="#signup" style="color: #4f46e5; text-decoration: underline;">zde</a>. Tak na co čekáš?🫵</p>
+      </div>
+    </section>
+
+    <section id="features" class="section">
+      <div class="container">
+        <h2 class="section-title">Informace o kroužku</h2>
+        <div class="info-grid">
+          <div class="info-card">
+            <i class="fas fa-laptop-code"></i>
+            <h3>Co se naučím?</h3>
+            <p>Přiblížíme ti kybersvět, naučíš se jak funguje internet, a zkusíš si, jaké to je být hackerem!👤 Naučíme tě základy programování ať už v jazyce Python, nebo C#. Těšit se můžeš také na 3D modelování a 3D tisk. A když tě nějaká z těchto oblastí nebude bavit, pomůžeme ti se zdokonalit v tom, co tě naopak baví.</p>
+          </div>
+          <div class="info-card">
+            <i class="fas fa-calendar-alt"></i>
+            <h3>Kdy a kde</h3>
+            <p>Kroužek se uskuteční každé pondělí od 15:30 do 16:30 na Základní škole v Rudné. Maximální kapacita je 25 žáků. Začínat budeme první lekcí 12.1.2026, poslední lekce se uskuteční 22.6.2026.</p>
+          </div>
+          <div class="info-card">
+            <i class="fas fa-users"></i>
+            <h3>Pro koho je kroužek?</h3>
+            <p>Kroužek je pro všechny kluky a holky co se zajímají o IT a nebojí se naučit něco nového. Kroužek doporučujeme žákum druhého stupně. Žádných předchozích znalostí není třeba, vše se spolu naučíme od začátku.😁</p>
+          </div>
+          <div class="info-card">
+            <i class="fas fa-tag"></i>
+            <h3>Cena</h3>
+            <p>Cena kroužku je 2 400 Kč za pololetí, tzn 20 lekcí. V ceně jsou zahrnuty veškeré výukové pomůcky, materiály a certifikát o absolvování. První lekci má každý zdarma! Když se ti s námi bude líbit a budeš chtít pokračovat, stačí zaplatit a chodit celé pololetí.😊</p>
+          </div>
+        </div>
+      </div>
+      <div class="section-divider">
+        <svg data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
+          <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" class="shape-fill"></path>
+        </svg>
+      </div>
+    </section>
+
+    <section id="signup" class="section alt">
+      <div class="container">
+        <h2>Máte zájem se přihlásit do našeho kroužku?</h2>
+        <p>Chceš se přidat do našeho IT kroužku a stát se opravdovým ajťákem?😎 Vyplň přihlášku, a přidej se k nám!<br>Po vyplnění přihlášky Ti pošleme email s potvrzením a další info ke kroužku.</p>
+        <p>
+          <a class="btn" target="_blank" rel="noopener" href="https://docs.google.com/forms/d/e/1FAIpQLSeu-DcGth-ZWqIFOrWRQFsEH-eCIo3Vrq5YhNngHlf1DQDKiA/viewform?usp=publish-editor">Otevřít přihlášku</a>
+        </p>
+      </div>
+    </section>
+
+    <section id="about" class="section alt">
+      <div class="container">
+        <h2><i class="fas fa-user-friends" style="margin-right: 10px;"></i>O nás - aneb kdo jsme?</h2>
+        <p>
+            Jsme Matěj a Kryštof, dva pohodoví kluci, co studují na střední. A na jaké? Na Smíchovské střední průmyslové škole, konkrétně studujeme obor kybernetické bezpečnosti. Rozhodli jsme se, že chceme dál předávat to, co nás nejvíce baví – technologie a kyberbezpečnost. Sami víme, jak nám v začátcích pomohlo, když nám někdo jednoduše a pochopitelně vysvětlil, jak co funguje, a přesně to chceme dělat i my.
+            Kroužek stavíme na principu učení hrou – méně teorie, více praktických cvičení, malé projekty a atmosféra, kde se můžeš bez obav ptát a zkoušet nové věci. Tím, že si budeme věkově blížší, dokážeme ti vysvětlit věci srozumitelně a způsobem, který tě bude bavit. Naším cílem je, aby sis z kroužku neodnesl jen teoretické znalosti, ale abys dokázal sám něco vytvořit a získal jasnější přehled o tom, jak věci v kyberprostoru fungují.
+        </p>
+      </div>
+      <div class="section-divider">
+        <svg data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
+          <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" class="shape-fill"></path>
+        </svg>
+      </div>
+    </section>
+
+    <section id="contact" class="section">
+      <div class="container">
+        <h2>Kontakt</h2>
+        <p class="form-note">V případě jakýchkoliv dotazů nám neváhejte napsat😊.</p>
+        <form action="https://api.web3forms.com/submit" method="POST" class="contact-form" id="contactForm">
+          <input type="hidden" name="access_key" value="5f5b6830-af99-43c5-8049-e68761a63683">
+          <input type="hidden" name="from_name" value="CyberAcademy Web Form">
+          <input type="hidden" name="subject" value="Nová zpráva z webu CyberAcademy">
+          <div class="row">
+            <label>
+              Jméno
+              <input id="senderName" name="jméno" type="text" placeholder="Tvoje jméno" required />
+            </label>
+            <label>
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <span>E‑mail</span>
+                <span style="font-size: 0.7em; color: #666;">(abychom Ti mohli odpovědět😉)</span>
+              </div>
+              <input id="senderEmail" name="email" type="email" placeholder="emilvomacka@priklad.cz" required />
+            </label>
+          </div>
+          <label>
+            Zpráva
+            <textarea id="message" name="zpráva" rows="5" placeholder="Napiš nám, co tě zajímá…" required></textarea>
+          </label>
+          <button class="btn" type="submit">Odeslat</button>
+          <small id="sendStatus" class="send-status" aria-live="polite"></small>
+          <input type="hidden" name="botcheck" class="hidden" style="display: none;">
+        </form>
+        <script src="https://web3forms.com/client/script.js" async defer></script>
+      </div>
+    </section>
+  </main>
+
+  <!-- Back to top button -->
+  <button id="backToTop" class="back-to-top" aria-label="Zpět nahoru">
+    <i class="fas fa-arrow-up"></i>
+  </button>
+
+  <footer class="footer">
+    <div class="container">
+      <small><span id="year"></span> Cyber Academy</small>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
